@@ -2,10 +2,18 @@ provider "aws" {
   region = "us-west-2"
 }
 
-resource "aws_instance" "claim_dev_server" {
-  ami           = "ami-00656d51d312f0dee"
-  instance_type = "t2.micro"
-  tags = {
-    Name = "claim_dev_server"
-  }
+variable "mgn_agent_iam_policy_arn" {
+  type        = string
+  description = "An AWS managed policy for MGN agent"
+  default     = "arn:aws:iam::aws:policy/AWSApplicationMigrationAgentPolicy"
+}
+
+resource "aws_iam_user" "svc-mgn" {
+  name = "svc-mgn"
+  path = "/"
+}
+
+resource "aws_iam_user_policy_attachment" "attach" {
+  user       = aws_iam_user.svc-mgn.name
+  policy_arn = var.mgn_agent_iam_policy_arn
 }
